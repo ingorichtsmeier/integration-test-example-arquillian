@@ -44,25 +44,25 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- process engine, needs to be 'provided' because it's already a shared library in the container -->
     <dependency>
-      <!-- process engine, needs to be 'provided' because it's already a shared library in the container -->
       <groupId>org.camunda.bpm</groupId>
       <artifactId>camunda-engine</artifactId>
       <scope>provided</scope>
     </dependency>
+    <!-- client for Java EE application server integration, included in WAR as an alternative to write your own ProcessApplication class -->
     <dependency>
-      <!-- client for Java EE application server integration, included in WAR as an alternative to write your own ProcessApplication class -->
       <groupId>org.camunda.bpm.javaee</groupId>
       <artifactId>camunda-ejb-client</artifactId>
     </dependency>
+    <!-- CDI integration, needs to be included in WAR, otherwise CDI can not work correctly -->
     <dependency>
-      <!-- CDI integration, needs to be included in WAR, otherwise CDI can not work correctly -->
       <groupId>org.camunda.bpm</groupId>
       <artifactId>camunda-engine-cdi</artifactId>
     </dependency>
 
+    <!-- AssertJ Testing Library -->
     <dependency>
-      <!-- AssertJ Testing Library -->
       <groupId>org.camunda.bpm.assert</groupId>
       <artifactId>camunda-bpm-assert</artifactId>
       <version>6.0.0</version>
@@ -76,37 +76,6 @@
       <scope>test</scope>
     </dependency>
     
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>2.18.0</version>
-      <scope>test</scope>
-    </dependency>    
-
-    <!-- Required to use Spin dataformat support in unit tests -->
-    <dependency>
-      <groupId>org.camunda.spin</groupId>
-      <artifactId>camunda-spin-dataformat-all</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.camunda.bpm</groupId>
-      <artifactId>camunda-engine-plugin-spin</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- Required to use Templates in unit tests -->
-    <dependency>
-      <groupId>org.camunda.template-engines</groupId>
-      <artifactId>camunda-template-engines-freemarker</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.camunda.template-engines</groupId>
-      <artifactId>camunda-template-engines-velocity</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
     <dependency>
       <!-- Bootstrap for styling via Webjars project -->
       <groupId>org.webjars</groupId>
@@ -136,79 +105,69 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <version>4.13.1</version>
       <scope>test</scope>
     </dependency>
 
+    <!-- Needed for ArquillianTest -->
     <dependency>
-      <!-- Needed for ArquillianTest -->
       <groupId>org.jboss.arquillian.junit</groupId>
       <artifactId>arquillian-junit-container</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
-      <!-- Needed for ArquillianTest -->
       <groupId>org.jboss.arquillian.protocol</groupId>
       <artifactId>arquillian-protocol-servlet</artifactId>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
       <groupId>org.jboss.shrinkwrap.resolver</groupId>
       <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
       <scope>test</scope>
     </dependency>
-<!--     <dependency>
-      <groupId>org.jboss.shrinkwrap.resolver</groupId>
-      <artifactId>shrinkwrap-resolver-spi-maven</artifactId>
+
+    <dependency>
+      <groupId>org.camunda.commons</groupId>
+      <artifactId>camunda-commons-logging</artifactId>
       <scope>test</scope>
     </dependency>
+    
+    <!-- Needed for InMemoryH2Test -->
     <dependency>
-      <groupId>org.jboss.shrinkwrap.resolver</groupId>
-      <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
-      <scope>test</scope>
-    </dependency>
- -->
-    <dependency>
-      <!-- Needed for InMemoryH2Test -->
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <version>1.4.197</version>
       <scope>test</scope>
     </dependency>
 
+    <!-- Used to generate test coverage reports, see https://github.com/camunda/camunda-consulting/tree/master/snippets/camunda-bpm-process-test-coverage -->
     <dependency>
-      <!-- Used to generate test coverage reports, see https://github.com/camunda/camunda-consulting/tree/master/snippets/camunda-bpm-process-test-coverage -->
       <groupId>org.camunda.bpm.extension</groupId>
       <artifactId>camunda-bpm-process-test-coverage</artifactId>
       <version>0.3.2</version>
       <scope>test</scope>
     </dependency>
     
+    <!-- use logback as logger -->
     <dependency>
-      <groupId>org.camunda.bpm.extension</groupId>
-      <artifactId>camunda-bpm-assert-scenario</artifactId>
-      <version>1.0.0</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <!-- use logback as logger -->
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.2.1</version>
       <scope>test</scope>
     </dependency>
 
+    <!-- apache commons logging => slf4j -->
     <dependency>
       <groupId>org.slf4j</groupId>
-      <!-- apache commons logging => slf4j -->
       <artifactId>jcl-over-slf4j</artifactId>
       <version>1.7.25</version>
       <scope>test</scope>
     </dependency>
 
+    <!--  java util logging => slf4j -->
     <dependency>
-      <!--  java util logging => slf4j -->
       <groupId>org.slf4j</groupId>
       <artifactId>jul-to-slf4j</artifactId>
       <version>1.7.25</version>
@@ -246,30 +205,17 @@
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
+      <!-- Deploy to JBoss AS7: mvn clean jboss-as:deploy See also: https://docs.jboss.org/jbossas/7/plugins/maven/latest/examples/deployment-example.html -->
       <plugin>
-        <!-- Deploy to JBoss AS7: mvn clean jboss-as:deploy See also: https://docs.jboss.org/jbossas/7/plugins/maven/latest/examples/deployment-example.html -->
         <groupId>org.jboss.as.plugins</groupId>
         <artifactId>jboss-as-maven-plugin</artifactId>
         <version>7.9.Final</version>
       </plugin>
+      <!-- Deploy to Wildfly: mvn clean wildfly:deploy See also: https://docs.jboss.org/wildfly/plugins/maven/latest/examples/deployment-example.html -->
       <plugin>
-        <!-- Deploy to Wildfly: mvn clean wildfly:deploy See also: https://docs.jboss.org/wildfly/plugins/maven/latest/examples/deployment-example.html -->
         <groupId>org.wildfly.plugins</groupId>
         <artifactId>wildfly-maven-plugin</artifactId>
         <version>1.2.1.Final</version>
-      </plugin>
-      <plugin>
-        <!-- Deploy to JBoss using: mvn clean package antrun:run
-             Follow the instructions in build.properties.example to make it work!-->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <configuration>
-          <tasks>
-            <ant antfile="${basedir}/build.xml">
-              <target name="copy.war.into.jboss" />
-            </ant>
-          </tasks>
-        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -304,8 +250,8 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-                <!-- Exclusion for Arquillian test cases to avoid dependency on infrastructure 
-                     for Maven build. Feel free to adjust to your testing requirements. -->
+              <!-- Exclusion for Arquillian test cases to avoid dependency on infrastructure 
+                   for Maven build. Feel free to adjust to your testing requirements. -->
               <excludes>
                 <exclude>**/Arquillian*.java</exclude>
               </excludes>
@@ -317,9 +263,9 @@
     <profile>
       <id>arq-wildfly-remote</id>
       <dependencies>
+        <!-- Needed for ArquillianTest -->
+        <!-- Requires a running Wildfly with Camunda BPM -->
         <dependency>
-          <!-- Needed for ArquillianTest -->
-          <!-- Requires a running Wildfly with Camunda BPM -->
           <groupId>org.wildfly.arquillian</groupId>
           <artifactId>wildfly-arquillian-container-remote</artifactId>
           <version>2.1.1.Final</version>

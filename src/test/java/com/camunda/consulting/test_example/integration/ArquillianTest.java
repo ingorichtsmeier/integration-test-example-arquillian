@@ -80,6 +80,21 @@ public class ArquillianTest {
     
     assertEquals(1, processEngine.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstance.getId()).finished().count());    
   }
+  
+  @Test
+  public void testProcessWithCamundaBPMAssert() {
+    
+    cleanUpRunningProcessInstances();
+    
+    ProcessInstance processInstance = runtimeService().startProcessInstanceByKey(
+        PROCESS_DEFINITION_KEY, 
+        withVariables("content", "assertTestExample" + new Date().getTime()));
+    
+    assertThat(processInstance).isWaitingAt(findId("Approve tweet"));
+    complete(task(), withVariables("approved", true));
+    
+    assertThat(processInstance).isEnded().hasPassed(findId("Tweet published")).variables().containsKey("tweetId");
+  }
 
   /**
    * Helper to delete all running process instances, which might disturb our Arquillian Test case

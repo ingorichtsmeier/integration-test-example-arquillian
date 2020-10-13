@@ -11,7 +11,6 @@
     </property>
     <property name="processEnginePlugins">
       <list>
-        <bean class="org.camunda.spin.plugin.impl.SpinProcessEnginePlugin" />
       </list>
     </property>
   </bean>

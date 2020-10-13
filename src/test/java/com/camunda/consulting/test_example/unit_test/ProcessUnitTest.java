@@ -42,12 +42,17 @@ public class ProcessUnitTest {
     // nothing is done here, as we just want to check for exceptions during deployment
   }
 
-//  @Test
+  @Test
   @Deployment(resources = "process.bpmn")
   public void testHappyPath() {
-	  //ProcessInstance processInstance = processEngine().getRuntimeService().startProcessInstanceByKey(PROCESS_DEFINITION_KEY);
+	  ProcessInstance processInstance = processEngine().getRuntimeService().startProcessInstanceByKey(PROCESS_DEFINITION_KEY, 
+	      withVariables("content", "Some test"));
 	  
 	  // Now: Drive the process by API and assert correct behavior by camunda-bpm-assert
+	  assertThat(processInstance)
+	      .isWaitingAt(findId("Approve tweet"))
+	      .task()
+	      .hasCandidateGroup("management");
   }
 
 }
