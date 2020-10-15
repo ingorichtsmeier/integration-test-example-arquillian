@@ -1,0 +1,271 @@
+{
+	"info": {
+		"_postman_id": "73c050cd-64d0-44db-8632-5b446f9691f4",
+		"name": "Twitter-HappyPath",
+		"description": "Example to test a process with Postman",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "start process",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5b836550-9f38-45eb-8669-d8ae5d895970",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"var processInstanceId = jsonData.id;",
+							"console.log(processInstanceId);",
+							"pm.collectionVariables.set(\"processInstanceId\", processInstanceId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"businessKey\" : \"Test  {{$randomInt}}\",\r\n  \"variables\" : {\r\n    \"content\" : {\"value\" : \"My integration test tweet from postman {{$randomInt}}\" , \"type\": \"String\"}\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/engine-rest/process-definition/key/test-example/start",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"engine-rest",
+						"process-definition",
+						"key",
+						"test-example",
+						"start"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get review task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4f19caba-78ca-41b2-a3e7-89c6f24e455b",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Expected task name\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData[0].name).to.eql(\"Approve tweet\");\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"var taskId = jsonData[0].id;\r",
+							"console.log(taskId);\r",
+							"pm.collectionVariables.set(\"taskId\", taskId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/engine-rest/task?processInstanceId={{processInstanceId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"engine-rest",
+						"task"
+					],
+					"query": [
+						{
+							"key": "processInstanceId",
+							"value": "{{processInstanceId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "complete Approve tweet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "56657cde-974c-47ab-8416-b283193c57d8",
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"variables\": {\n        \"approved\": {\n            \"value\": true\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/engine-rest/task/{{taskId}}/complete",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"engine-rest",
+						"task",
+						"{{taskId}}",
+						"complete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Wait for async completion",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://postman-echo.com/delay/3",
+					"protocol": "https",
+					"host": [
+						"postman-echo",
+						"com"
+					],
+					"path": [
+						"delay",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "process instance finished",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "dd908fb9-08fa-454e-b46a-c0233438b34b",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"state is completed\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.state).to.eql(\"COMPLETED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/engine-rest/history/process-instance/{{processInstanceId}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"engine-rest",
+						"history",
+						"process-instance",
+						"{{processInstanceId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "1dafbdb2-c6ff-4e43-881b-1a5f19783fba",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "629846de-33c7-42b9-9dbd-59805755406b",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "4c57ade6-7ef5-40f8-a9fc-0a2824c7c9f4",
+			"key": "deploymentId",
+			"value": ""
+		},
+		{
+			"id": "32189b10-01cf-429b-a0ca-c3a8802d3004",
+			"key": "processInstanceId",
+			"value": ""
+		},
+		{
+			"id": "4a953c6d-5a33-447d-b5c1-2e6fc034f77d",
+			"key": "externalTaskId",
+			"value": ""
+		},
+		{
+			"id": "ec0837d3-f5a9-4e74-8931-d20bf63e88da",
+			"key": "taskId",
+			"value": ""
+		}
+	],
+	"protocolProfileBehavior": {}
+}

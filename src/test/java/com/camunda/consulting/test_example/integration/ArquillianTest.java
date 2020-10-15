@@ -5,7 +5,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -68,8 +70,12 @@ public class ArquillianTest {
     
     cleanUpRunningProcessInstances();
     
-    ProcessInstance processInstance = processEngine.getRuntimeService().startProcessInstanceByKey(PROCESS_DEFINITION_KEY, 
-        withVariables("content", "testExample " + new Date().getTime()));
+    Map<String,Object> variables = new HashMap<>();
+    variables.put("content", "testExample " + new Date().getTime());
+    
+    ProcessInstance processInstance = processEngine.getRuntimeService().startProcessInstanceByKey(
+        PROCESS_DEFINITION_KEY, 
+        variables);
     
     assertEquals(1, processEngine.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstance.getId()).active().count());
     
@@ -78,11 +84,13 @@ public class ArquillianTest {
     
     processEngine.getTaskService().complete(task.getId(), withVariables("approved", true));
     
+    Thread.sleep(3000);
+    
     assertEquals(1, processEngine.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstance.getId()).finished().count());    
   }
   
   @Test
-  public void testProcessWithCamundaBPMAssert() {
+  public void testProcessWithCamundaBPMAssert() throws Exception {
     
     cleanUpRunningProcessInstances();
     
@@ -92,6 +100,8 @@ public class ArquillianTest {
     
     assertThat(processInstance).isWaitingAt(findId("Approve tweet"));
     complete(task(), withVariables("approved", true));
+    
+    Thread.sleep(3000);
     
     assertThat(processInstance).isEnded().hasPassed(findId("Tweet published")).variables().containsKey("tweetId");
   }
